@@ -1,5 +1,9 @@
 package com.fwtai.bean;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -11,7 +15,7 @@ import java.util.List;
  * @Email service@dwlai.com
  * @官网 http://www.fwtai.com
 */
-public final class AuthUsers{
+public final class AuthUsers implements UserDetails{
 
     private boolean accountNonExpired;
     private boolean accountNonLocked;
@@ -20,51 +24,38 @@ public final class AuthUsers{
     private boolean enabled;
     private String username;
 
-    public boolean isAccountNonExpired(){
-        return accountNonExpired;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities(){
+        return null;
     }
 
-    public void setAccountNonExpired(boolean accountNonExpired){
-        this.accountNonExpired = accountNonExpired;
+    @Override
+    public String getPassword(){
+        return null;
     }
 
-    public boolean isAccountNonLocked(){
-        return accountNonLocked;
-    }
-
-    public void setAccountNonLocked(boolean accountNonLocked){
-        this.accountNonLocked = accountNonLocked;
-    }
-
-    public List<String> getAuthorities(){
-        return authorities;
-    }
-
-    public void setAuthorities(List<String> authorities){
-        this.authorities = authorities;
-    }
-
-    public boolean isCredentialsNonExpired(){
-        return credentialsNonExpired;
-    }
-
-    public void setCredentialsNonExpired(boolean credentialsNonExpired){
-        this.credentialsNonExpired = credentialsNonExpired;
-    }
-
-    public boolean isEnabled(){
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled){
-        this.enabled = enabled;
-    }
-
+    @Override
     public String getUsername(){
-        return username;
+        return null;
     }
 
-    public void setUsername(String username){
-        this.username = username;
+    @Override
+    public boolean isAccountNonExpired(){
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked(){
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired(){
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled(){
+        return false;
     }
 }

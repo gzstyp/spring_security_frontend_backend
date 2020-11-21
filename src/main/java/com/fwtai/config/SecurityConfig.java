@@ -42,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         return NoOpPasswordEncoder.getInstance();
     }
 
-    //角色继承,即admin角色拥有user的角色
+    //角色继承,即admin角色拥有user的角色,RoleHierarchy是个接口
     @Bean
     protected RoleHierarchy roleHierarchy() {
         final RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
@@ -144,6 +144,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         //未登录认证处理
         .exceptionHandling()
         .authenticationEntryPoint((request,response,authException)->{
+            final String token = request.getHeader("token");
+            final String userName = request.getParameter("userName");
+            System.out.println(userName);
+            System.out.println(token);
             client.responseJson(client.json(401,"token无效或已过期,请重新登录"),response);
         });
     }
