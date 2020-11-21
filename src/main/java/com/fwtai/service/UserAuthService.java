@@ -1,9 +1,13 @@
 package com.fwtai.service;
 
+import com.fwtai.bean.AuthUsers;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 自定义认证
@@ -17,8 +21,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserAuthService implements UserDetailsService{
 
+    @Resource
+    private UserService userService;
+
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException{
-        return null;
+        final String userId = userService.login(username);
+        if(userId == null){
+            throw new UsernameNotFoundException("账号或密码错误哦");
+        }
+        final List<String> list = userService.getRole(userId);
+        final AuthUsers authUsers = new AuthUsers();
+        return authUsers;
     }
 }
