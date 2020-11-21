@@ -3,6 +3,8 @@ package com.fwtai.config;
 import com.fwtai.tool.ToolClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
@@ -38,6 +40,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     @Bean
     protected PasswordEncoder passwordEncoder(){
         return NoOpPasswordEncoder.getInstance();
+    }
+
+    //角色继承,即admin角色拥有user的角色
+    @Bean
+    protected RoleHierarchy roleHierarchy() {
+        final RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+        hierarchy.setHierarchy("ROLE_admin > ROLE_user");
+        return hierarchy;
     }
 
     @Override
