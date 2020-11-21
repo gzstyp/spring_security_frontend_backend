@@ -117,7 +117,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         //未登录认证处理
         .exceptionHandling()
         .authenticationEntryPoint((request,response,authException)->{
-            client.responseJson(client.json(401,"尚未登录,请登录!"),response);
+            client.responseJson(client.json(401,"token无效或已过期,请重新登录"),response);
         });
     }
 }
