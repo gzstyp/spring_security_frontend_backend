@@ -7,13 +7,15 @@ import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import javax.annotation.Resource;
 import java.util.Collection;
@@ -44,9 +46,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         .antMatchers("/css/**","/images/**");
     }
 
+    /*//基于内存数据库
     @Override
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception{
-        auth.inMemoryAuthentication().withUser("root").password("123").roles("admin");
+        auth.inMemoryAuthentication()
+        .withUser("root").password("123").roles("admin")
+        .and().withUser("user").password("123").roles("user");
+    }*/
+
+    //基于内存数据库,它和上面的是一样的!!!
+    @Override
+    @Bean//不能丢!!!
+    protected UserDetailsService userDetailsService(){
+        final InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withUsername("root").password("123").roles("root").build());
+        manager.createUser(User.withUsername("user").password("123").roles("user").build());
+        return manager;
     }
 
     @Override
@@ -67,7 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
             final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();//权限和角色信息
             final Object details = authentication.getDetails();
             final String json = client.queryJson(principal);
-            client.responseJson(json,response);
+            client.responseJson(json,response);//返回:{"msg":"操作成功","data":{"accountNonExpired":true,"accountNonLocked":true,"authorities":[{"authority":"ROLE_admin"}],"credentialsNonExpired":true,"enabled":true,"username":"root"},"code":200}
         })
         //.successForwardUrl("/succeed")//登录成功的跳转url,其实它的服务端跳转,即URL路径不变,它是post请求方式;它有个特点就是不管你哪一个url页面过来，登录成功后都会跳转到/succeed
         //.defaultSuccessUrl("/success")//登录成功的重定向,它是重定向!!!,不是跳转,它会在登录成功后重定向到之前跳转过来的url页面,说明它会记录重定向的url地址;它会从哪里来就跳转哪里去,若在登录页面来的它会跳转到/success去;是get请求;它和successForwardUrl()不能同时使用,即只能二选一
@@ -75,7 +90,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
         //失败的回调,request可以客户端跳转[重定向];response可以服务器端跳转,当然可以返回json;authenticationException包含登录失败的数据信息;此时不会跳转了,要跳转只需在客户端做处理即可;
         .failureHandler((request,response,authenticationException)->{//它是接口 org.springframework.security.web.authentication.AuthenticationFailureHandler 内部类实现
-            final String message = authenticationException.getMessage();
+            final String message = authenticationException.getMessage();//用户名或密码错误
             if(authenticationException instanceof LockedException){
                 client.responseJson(client.json(199,"账号被锁定"),response);
                 return;
@@ -92,7 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 client.responseJson(client.json(199,"账号被禁用"),response);
                 return;
             }
-            client.responseJson(client.json(199,message+"帐号或密码错误"),response);//返回:{"msg":"Bad credentials","code":199}
+            client.responseJson(client.json(199,"账号或密码错误"),response);//返回:{"msg":"Bad credentials","code":199}
         })
         //.failureUrl("/failure")//登录失败的回调;它的重定向(重定向是客户端跳转)
         //.failureForwardUrl("/fail")//登录失败时回调;它是服务端跳转;
