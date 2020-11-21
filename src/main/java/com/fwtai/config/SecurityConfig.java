@@ -56,19 +56,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
     //基于内存数据库,它和上面的是一样的!!!
     @Override
-    @Bean//不能丢!!!
+    @Bean
     protected UserDetailsService userDetailsService(){
         final InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(User.withUsername("root").password("123").roles("root").build());
-        manager.createUser(User.withUsername("user").password("123").roles("user").build());
+        manager.createUser(User.withUsername("root").password("123").roles("admin").build());//角色为 root 的授权操作
+        manager.createUser(User.withUsername("user").password("123").roles("user").build());//角色为 user 的授权操作
         return manager;
     }
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception{
         http.authorizeRequests()//开启认证
+        .antMatchers("/admin/**").hasRole("admin")//配置拦截规则,即拥有admin角色的才能访问以/admin/开头的接口
+        .antMatchers("/user/**").hasRole("user")//配置拦截规则,即拥有user角色的才能访问以/user/开头的接口
         .anyRequest()//任何请求
-        .authenticated()//认证之后才能访问
+        .authenticated()//登录认证之后才能访问,注意配置顺序,顺序很重要,它和shiro是一样的
         .and()//此时又回到上面第1行的 'authorizeRequests()'
         .formLogin()//表单登录
         .loginProcessingUrl("/loginAuth")//post请求:http://192.168.3.108:88/loginAuth
