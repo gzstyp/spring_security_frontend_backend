@@ -13,6 +13,7 @@
 	<version>v1.0.0</version>
 
     <description>
+        已停止更新
         Spring Security 应用示例代码,前后端分离版本,无状态登录,仅供参考,建议使用项目security_frontend_backend代码
         需要注意的是:
         前后端分离之后的数据交互
